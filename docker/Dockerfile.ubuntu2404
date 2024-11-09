@@ -1,0 +1,36 @@
+ARG BASE_IMAGE
+FROM BASE_IMAGE AS dev
+
+ENV TERM=xterm-256color
+ENV COLORTERM=truecolor
+ENV LANG=en_IN.UTF-8
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    software-properties-common \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN add-apt-repository ppa:neovim-ppa/unstable -y
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    clangd \
+    curl \
+    git \
+    neovim \
+    ripgrep \
+    tmux \
+    unzip \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY nvim /root/.config/nvim
+
+# Clangd binaries for aarch64 aren't available so we manually install them
+# using the system packages.
+# See https://github.com/mason-org/mason-registry/issues/5800#issuecomment-2156640019
+RUN mkdir -p /root/.local/share/nvim/mason/bin \
+ && ln -s /usr/bin/clang /root/.local/share/nvim/mason/bin/clangd \
+ && mkdir -p /root/.local/share/nvim/mason/packages/clangd
+
+# Open nvim to force plugin installation.
+RUN nvim +TSUpdateSync all +qall
+
+COPY tmux/tmux.conf /root/.tmux.conf
