@@ -1,5 +1,4 @@
-ARG BASE_IMAGE
-FROM BASE_IMAGE AS dev
+FROM ubuntu:24.04 AS dev
 
 ENV TERM=xterm-256color
 ENV COLORTERM=truecolor
@@ -13,9 +12,19 @@ RUN add-apt-repository ppa:neovim-ppa/unstable -y
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     clangd \
+    clang-format \
+    clang-tidy \
+    cmake \
     curl \
+    g++ \
+    gcc \
+    gcovr \
     git \
+    make \
     neovim \
+    nodejs \
+    npm \
+    python3-pip \
     ripgrep \
     tmux \
     unzip \
@@ -34,3 +43,5 @@ RUN mkdir -p /root/.local/share/nvim/mason/bin \
 RUN nvim +TSUpdateSync all +qall
 
 COPY tmux/tmux.conf /root/.tmux.conf
+
+WORKDIR /app
